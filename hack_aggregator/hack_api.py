@@ -18,7 +18,7 @@ def get_content_list(page):
     
 def get_author(authorId):
     try:
-        response = requests.get(base_url + '/authors/' + authorId, headers=headers )
+        response = requests.get(base_url + '/authors/' + str(authorId), headers=headers )
         return response
     except Exception as e:
         return e

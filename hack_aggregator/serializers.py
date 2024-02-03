@@ -6,31 +6,28 @@ class ContentSerializer(serializers.ModelSerializer):
 
     def get_author(self, obj):
         author = Author.objects.filter(id = obj.author)
-        print(author.count())
         if author.count() == 1:
-            print('returning')
             return author
         else:
             retries = 0
-            print('asrt')
-            returnedAuthor = {
-                "status_code": 400
-            }
-            while returnedAuthor.status_code != 200 and retries < 3:
+            returnedAuthor = {}
+            while retries < 3:
                 returnedAuthor = get_author(obj.author)
-                print(returnedAuthor)
+                if returnedAuthor.status_code == 200:
+                    break
                 retries += 1
-            if not author:
+            if returnedAuthor and returnedAuthor.status_code != 200:
                 return None
             try:
                 savedAuthor = {}
-                savedAuthor['id'] = author['unique_id']
-                savedAuthor['name'] = author['info']['name']
-                savedAuthor['platform'] = author['info']['platform']
-                savedAuthor['username'] = author['username']
-                savedAuthor['avatar'] = author['avatar']['urls'][0]
-                savedAuthor['profile_text'] = author['texts']['profile_text']
-                savedAuthor['followers'] = int(author['stats']['digg_count']['followers']['count'])
+                savedAuthor['id'] = returnedAuthor['unique_id']
+                savedAuthor['name'] = returnedAuthor['info']['name']
+                savedAuthor['platform'] = returnedAuthor['info']['platform']
+                savedAuthor['username'] = returnedAuthor['username']
+                savedAuthor['avatar'] = returnedAuthor['avatar']['urls'][0]
+                savedAuthor['profile_text'] = returnedAuthor['texts']['profile_text']
+                savedAuthor['followers'] = int(returnedAuthor['stats']['digg_count']['followers']['count'])
+                saved = Author(**savedAuthor).save()
             except:
                 return None
 
